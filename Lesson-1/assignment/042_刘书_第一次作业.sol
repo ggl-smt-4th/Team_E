@@ -35,6 +35,7 @@ contract Payroll {
     }
 
     function addFund() payable returns (uint){
+        require(msg.sender == boss);
         return this.balance;    
     }
     
