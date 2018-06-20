@@ -3,6 +3,9 @@
 /*今天要解决的是可以调整员工的薪水和地址
 只有owner可以更新employee的地址
 只有employee可以加钱
+getpaid转账前，增加balance余额校验，如果余额不足，则报错。
+增加updateEmployee地址和金额的变化校验，如果没有变化，就不执行。
+
 
 */
 
