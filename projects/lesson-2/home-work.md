@@ -1,5 +1,5 @@
 Gas变化记录:
-
+用一个单独的_totalSalary()函数来计算total_salary(通过循环)
 | Employee No.| Transaction cost(gas)           | Execution cost(gas)  |
 | ------------- |:-------------:| -----:|
 | 1 | 23031 | 1759| 
