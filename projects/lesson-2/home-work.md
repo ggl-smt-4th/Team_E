@@ -32,9 +32,11 @@ SalaryHasChanged 初始默认为false，
 每次调用addEmployee\updateEmployee\removeEmployee时都把SalaryHasChanged设成true.
 运行 calculateRunway前检查SalaryHasChanged，如果为false，则使用当前totalSalary的值；
 如果为true，则重新计算totalSalary，然后把SalaryHasChanged设成false。
+
 contract Payroll{
     ......
     bool SalaryHasChanged = false;
+    uint totalSalary = 0;
     
     function addEmployee(address employeeAddress, uint salary) public {
       ......
