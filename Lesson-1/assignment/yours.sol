@@ -25,11 +25,21 @@ contract Payroll{
         return calculateRunway() > 0;
     }
     
-    function changeEmployeeAddress(address e) {
+    function changeEmployeeAddress(address e) payable {
+        require(msg.sender == owner);
+        require(e != 0x0)
+        # Pay for the last employee
+        if(employee != 0x0)
+        {
+            uint money = salary*(lastPayDay-now)/payDuration;
+            assert(money<=this.balance);
+            employee.transfer(money);
+        }
         employee = e;
     }
     
     function changeEmployeeSalary(uint s) {
+        require(msg.sender == owner);
         salary = s * 1 ether;
     }
     
