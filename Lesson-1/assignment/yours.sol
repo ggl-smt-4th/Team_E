@@ -5,7 +5,7 @@ contract Payroll{
     uint constant payDuration = 10 seconds;
     
     address owner;
-    address employee = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c;
+    address employee;
     uint salary = 1 ether;
     uint lastPayDay = now;
     
@@ -25,10 +25,9 @@ contract Payroll{
         return calculateRunway() > 0;
     }
     
-    function changeEmployeeAddress(address e) payable {
+    function changeEmployeeAddress(address e) payable{
         require(msg.sender == owner);
-        require(e != 0x0)
-        # Pay for the last employee
+        require(e != 0x0);
         if(employee != 0x0)
         {
             uint money = salary*(lastPayDay-now)/payDuration;
@@ -40,6 +39,12 @@ contract Payroll{
     
     function changeEmployeeSalary(uint s) {
         require(msg.sender == owner);
+        if(employee != 0x0)
+        {
+            uint money = salary*(lastPayDay-now)/payDuration;
+            assert(money<=this.balance);
+            employee.transfer(money);
+        }
         salary = s * 1 ether;
     }
     
