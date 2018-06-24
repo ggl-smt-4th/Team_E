@@ -1,0 +1,126 @@
+1. gas有变化，如下图
+员工数	Transaction cost	Execution cost
+1	23018	1746
+2	23799	2527
+3	24580	3308
+4	25361	4089
+5	26142	4870
+6	26923	5651
+7	27704	6432
+8	28485	7213
+9	29266	7994
+10	30047	8775
+
+原因是随着员工数增加，循环次数增加，因此消耗的gas也增加
+
+2. calculateRunway改进
+声明一个全局变量totalSalary，每次对员工进行修改时更新此变量，这样在calculateRunway里就不用循环，只需最后的计算，改进后gas：
+员工数	Transaction cost	Execution cost
+1	22176	904
+2	22176	904
+3	22176	904
+4	22176	904
+5	22176	904
+6	22176	904
+7	22176	904
+8	22176	904
+9	22176	904
+10	22176	904
+
+代码如下：
+pragma solidity ^0.4.14;
+
+contract PayRoll {
+    struct Employee {
+        address id;
+        uint salary;
+        uint lastPayDay;
+    }
+    
+    address owner;
+    Employee[] employees;
+    
+    uint totalSalary = 0;
+    uint constant payDuration = 10 seconds;
+    
+    function PayRoll() payable {
+        owner = msg.sender;
+    }
+
+    function addFund() payable returns (uint) {
+        return this.balance;
+    }
+    
+    function _patialPaid(Employee employee) private {
+        uint payment = employee.salary * (now - employee.lastPayDay) / payDuration;
+        employee.id.transfer(payment);
+    }
+    
+    function _findEmployee(address employeeId) private returns (Employee, uint) {
+        for(uint i=0; i<employees.length; i++) {
+            if(employees[i].id == employeeId) {
+                return (employees[i], i);
+            }
+        }
+    }
+    
+    function addEmployee(address employeeId, uint salary) {
+        require(msg.sender==owner);
+        var (employee,index) = _findEmployee(employeeId);
+        assert(employee.id==0x0);
+        
+        employees.push(Employee(employeeId,salary* 1 ether,now));
+        totalSalary = 0;
+        for(uint i=0;i<employees.length;i++) {
+           totalSalary += employees[i].salary;
+        }
+    }
+    
+    function removeEmployee(address employeeId){
+        require(msg.sender==owner);
+        var (employee,index) = _findEmployee(employeeId);
+        assert(employee.id!=0x0);
+        
+        _patialPaid(employee);
+        delete employees[index];
+        employees[index] = employees[employees.length-1];
+        employees.length-=1;
+        totalSalary = 0;
+        for(uint i=0;i<employees.length;i++) {
+           totalSalary += employees[i].salary;
+        }
+    }
+    
+    function updateEmployee(address employeeId, uint salary){
+        require(msg.sender==owner);
+        var (employee,index) = _findEmployee(employeeId);
+        assert(employee.id!=0x0);
+        
+        _patialPaid(employee);
+        employees[index].salary = salary * 1 ether;
+        employees[index].lastPayDay = now;
+        totalSalary = 0;
+        for(uint i=0;i<employees.length;i++) {
+           totalSalary += employees[i].salary;
+        }
+    }    
+
+    function calculateRunWay() returns (uint) {
+        return this.balance/totalSalary;
+    }
+    
+    function hasEnoughFund() returns (bool) {
+        return calculateRunWay() > 0;
+    }
+    
+    function getPaid() {
+        var (employee,index) = _findEmployee(msg.sender);
+        assert(employee.id!=0x0);
+        
+        uint nextPayDay = employee.lastPayDay + payDuration;
+        assert(nextPayDay < now);
+        
+        employees[index].lastPayDay = nextPayDay;
+        employees[index].id.transfer(employee.salary);
+    }
+}
