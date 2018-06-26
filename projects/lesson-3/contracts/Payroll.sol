@@ -31,22 +31,22 @@ contract Payroll is Ownable {
 
     function _settlement(address employeeId) payable{
         Employee e = employees[employeeId];
-        uint money = e.salary*(now-e.lastPayDay)/payDuration;
+        uint money = e.salary.mul(now-e.lastPayDay)/payDuration;
         assert(money<=this.balance);
         e.lastPayDay = now;
         e.id.transfer(money);
     }
 
     function addEmployee(address employeeId, uint salary) public onlyOwner notNoneAddress(employeeId){
-        assert(salary>=0);
+        assert(salary < uint(-300000));
         assert(employees[employeeId].id == 0x0);
-        employees[employeeId] = Employee(employeeId, salary * 1 ether, now);
-        total_salary += salary * 1 ether;
+        employees[employeeId] = Employee(employeeId, salary.mul(1 ether), now);
+        total_salary = total_salary.add( salary.mul(1 ether));
     }
 
     function removeEmployee(address employeeId) public onlyOwner notNoneAddress(employeeId){
         assert(employees[employeeId].id == employeeId);
-        total_salary -= employees[employeeId].salary;
+        total_salary = total_salary.sub(employees[employeeId].salary);
         _settlement(employeeId);
         delete employees[employeeId];
     }
@@ -60,10 +60,10 @@ contract Payroll is Ownable {
 
     function updateEmployee(address employeeId, uint salary) public onlyOwner notNoneAddress(employeeId){
         assert(employees[employeeId].id == employeeId);
-        assert(salary>=0);
         _settlement(employeeId);
-        total_salary = total_salary - employees[employeeId].salary + salary;
-        employees[employeeId].salary = salary * 1 ether;
+        total_salary = total_salary.sub(employees[employeeId].salary);
+        total_salary = total_salary.add(salary);
+        employees[employeeId].salary = salary.mul(1 ether);
     }
 
     function addFund() payable public returns (uint) {
