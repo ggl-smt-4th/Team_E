@@ -19,7 +19,6 @@ contract Payroll is Ownable {
     mapping(address => Employee) public employees;
 
     function Payroll() payable public {
-        owner = msg.sender;
     }
     
     modifier deleteEmployee(address employeeId) {
