@@ -13,56 +13,73 @@ uint constant payDuration = 10 seconds;
 
     address addrOfowner;
     Employee[] employees;
+    uint totalSalary = 0;
 
     //构造函数
     function Payroll() payable public {
         addrOfowner = msg.sender;
     }
+    
+    modifier onlyOwner() {
+        require(msg.sender == addrOfowner);
+        _;
+    }
 
     function partialPaid(Employee employee) private {
+        assert(employee.addrOfEmployee != 0x0);
          uint partialdPaid = employee.salary * (now - employee.lastPayday)/payDuration;
          employee.addrOfEmployee.transfer(partialdPaid);
 
     }
 
-    function findEmployee(address addrOfEmployee) private returns (Employee,uint) {
-        for(uint i=0; i<employees.length; i++) {
+    function findEmployee(address addrOfEmployee) internal returns (Employee,uint) {
+        for(uint i=0; i < employees.length; i++) {
             if( employees[i].addrOfEmployee == addrOfEmployee) {
                 return (employees[i],i);
             }
+        }
     }
+    
+    function deleteEmployee(uint index) internal {
+        delete employees[index];
+        employees[index] = employees[employees.length -1];
+        employees.length -= 1;
     }
 
-    function addEmployee(address employeeAddress, uint salary) public {
-        require(msg.sender == addrOfowner);
+    function addEmployee(address employeeAddress, uint salary) public onlyOwner {
+        require(int(salary) >= 0);
         // TODO: your code here
-        for(uint i=0; i<employees.length; i++) {
-            if( employees[i].addrOfEmployee == employeeAddress) {
-                revert();
+        salary = salary * 1 ether;
+        var (employee,index) = findEmployee(employeeAddress);
+        
+        if(employee.addrOfEmployee == 0x0) {
+            employees.push(Employee(employeeAddress,salary,now));
+        } else {
+            if(salary != employee.salary) {
+                partialPaid(employee);
+                employees[index].lastPayday = now;
+                employees[index].salary = salary * 1 ether;
             }
         }
-        employees.push(employees(employeeAddress,salary * 1 ether,now));
     }
 
-    function removeEmployee(address employeeId) public {
-        require(msg.sender == addrOfowner);
+    function removeEmployee(address employeeId) public onlyOwner {
         // TODO: your code here
         var (employee,index) = findEmployee(employeeId);
         assert(employee.addrOfEmployee != 0x0);
 
         partialPaid(employee);
-        delete employees[index];
-        employees[index] = employees[employees.length - 1] ;
-        employees.length -= 1;
+        deleteEmployee(index);
     }
 
     function updateEmployee(address employeeAddress, uint salary) public {
-        require(msg.sender == addrOfowner);
+        require(int(salary) >= 0);
         // TODO: your code here
         var (employee,index) = findEmployee(employeeAddress);
+        assert(employee.addrOfEmployee != 0x0);
         partialPaid(employee);
-        employee.salary = salary * 1 ether;
-        employee.lastPayday = now;
+        employees[index].salary = salary * 1 ether;
+        employees[index].lastPayday = now;
     }
 
     //存入工资
@@ -72,7 +89,7 @@ uint constant payDuration = 10 seconds;
 
     function calculateRunway() public view returns (uint) {
         // TODO: your code here
-        uint totalSalary = 0;
+        
         for(uint i=0;i<employees.length;i++) {
             totalSalary += employees[i].salary;
         }
@@ -90,9 +107,20 @@ uint constant payDuration = 10 seconds;
         assert(employee.addrOfEmployee != 0x0);
 
         uint nextPayday = employee.lastPayday + payDuration;
-        if(nextPayday >now) revert();
+        assert(nextPayday < now);
 
-        employee.lastPayday = nextPayday;
-        employee.addrOfEmployee.transfer(employee.salary);
+        employees[index].lastPayday = nextPayday;
+        employees[index].addrOfEmployee.transfer(employee.salary);
+    }
+    
+    function getEmployeeCount() public view returns (uint) {
+        return employees.length;
+    }
+    
+    function getEmployeeSalary() public view returns (uint) {
+        var(employee,index) = findEmployee(msg.sender);
+        assert(employee.addrOfEmployee != 0x0);
+        return employee.salary;
     }
 }
+
