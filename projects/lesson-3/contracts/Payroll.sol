@@ -13,11 +13,10 @@ contract Payroll is Ownable {
         uint lastPayDay;
     }
 
-    uint constant payDuration = 30 days;
-    uint public totalSalary = 0;
+    uint constant payDuration = 10 seconds;
     mapping(address => Employee) public employees;
     address owner;
-    uint public total_salary = 0;
+    uint public totalSalary = 0;
 
     modifier notNoneAddress(address employeeId) {
        require(employeeId != 0x0);
@@ -30,7 +29,8 @@ contract Payroll is Ownable {
     }
 
     function _settlement(address employeeId) payable{
-        Employee e = employees[employeeId];
+        assert(employees[employeeId].id == employeeId);
+        var e = employees[employeeId];
         uint money = e.salary.mul(now-e.lastPayDay)/payDuration;
         assert(money<=this.balance);
         e.lastPayDay = now;
@@ -41,12 +41,12 @@ contract Payroll is Ownable {
         assert(salary < uint(-300000));
         assert(employees[employeeId].id == 0x0);
         employees[employeeId] = Employee(employeeId, salary.mul(1 ether), now);
-        total_salary = total_salary.add( salary * 1 ether);
+        totalSalary = totalSalary.add( salary * 1 ether);
     }
 
     function removeEmployee(address employeeId) public onlyOwner notNoneAddress(employeeId){
         assert(employees[employeeId].id == employeeId);
-        total_salary = total_salary.sub(employees[employeeId].salary);
+        totalSalary = totalSalary.sub(employees[employeeId].salary);
         _settlement(employeeId);
         delete employees[employeeId];
     }
@@ -55,16 +55,16 @@ contract Payroll is Ownable {
         require(oldAddress != newAddress);
         assert(employees[newAddress].id == 0x0);
         assert(employees[oldAddress].id == oldAddress);
-        employees[newAddress] = employees[oldAddress];
+        employees[newAddress] = Employee(newAddress, employees[oldAddress].salary, employees[oldAddress].lastPayDay);//employees[oldAddress];
         delete employees[oldAddress];
     }
 
     function updateEmployee(address employeeId, uint salary) public onlyOwner notNoneAddress(employeeId){
         assert(employees[employeeId].id == employeeId);
         _settlement(employeeId);
-        total_salary = total_salary.sub(employees[employeeId].salary);
-        total_salary = total_salary.add(salary.mul(1 ether));
+        totalSalary = totalSalary.sub(employees[employeeId].salary);
         employees[employeeId].salary = salary.mul(1 ether);
+        totalSalary = totalSalary.add( employees[employeeId].salary);
     }
 
     function addFund() payable public returns (uint) {
@@ -72,7 +72,7 @@ contract Payroll is Ownable {
     }
 
     function calculateRunway() public view returns (uint) {
-        return address(this).balance / total_salary;
+        return address(this).balance / totalSalary;
     }
 
     function hasEnoughFund() public view returns (bool) {
