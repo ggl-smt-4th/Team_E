@@ -41,7 +41,7 @@ contract Payroll is Ownable {
         assert(salary < uint(-300000));
         assert(employees[employeeId].id == 0x0);
         employees[employeeId] = Employee(employeeId, salary.mul(1 ether), now);
-        total_salary = total_salary.add( salary.mul(1 ether));
+        total_salary = total_salary.add( salary * 1 ether);
     }
 
     function removeEmployee(address employeeId) public onlyOwner notNoneAddress(employeeId){
@@ -52,6 +52,7 @@ contract Payroll is Ownable {
     }
 
     function changePaymentAddress(address oldAddress, address newAddress) public onlyOwner{
+        require(oldAddress != newAddress);
         assert(employees[newAddress].id == 0x0);
         assert(employees[oldAddress].id == oldAddress);
         employees[newAddress] = employees[oldAddress];
@@ -62,7 +63,7 @@ contract Payroll is Ownable {
         assert(employees[employeeId].id == employeeId);
         _settlement(employeeId);
         total_salary = total_salary.sub(employees[employeeId].salary);
-        total_salary = total_salary.add(salary);
+        total_salary = total_salary.add(salary.mul(1 ether));
         employees[employeeId].salary = salary.mul(1 ether);
     }
 
