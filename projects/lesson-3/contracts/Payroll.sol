@@ -38,6 +38,7 @@ contract Payroll is Ownable {
     }
 
     function addEmployee(address employeeId, uint salary) public onlyOwner notNoneAddress(employeeId){
+        assert(salary>=0);
         assert(employees[employeeId].id == 0x0);
         employees[employeeId] = Employee(employeeId, salary * 1 ether, now);
         total_salary += salary * 1 ether;
@@ -50,8 +51,7 @@ contract Payroll is Ownable {
         delete employees[employeeId];
     }
 
-    function changePaymentAddress(address oldAddress, address newAddress) public {
-        require(msg.sender == oldAddress);
+    function changePaymentAddress(address oldAddress, address newAddress) public onlyOwner{
         assert(employees[newAddress].id == 0x0);
         assert(employees[oldAddress].id == oldAddress);
         employees[newAddress] = employees[oldAddress];
@@ -60,9 +60,10 @@ contract Payroll is Ownable {
 
     function updateEmployee(address employeeId, uint salary) public onlyOwner notNoneAddress(employeeId){
         assert(employees[employeeId].id == employeeId);
+        assert(salary>=0);
         _settlement(employeeId);
         total_salary = total_salary - employees[employeeId].salary + salary;
-        employees[employeeId].salary = salary;
+        employees[employeeId].salary = salary * 1 ether;
     }
 
     function addFund() payable public returns (uint) {
@@ -70,7 +71,7 @@ contract Payroll is Ownable {
     }
 
     function calculateRunway() public view returns (uint) {
-        return this.balance / total_salary;
+        return address(this).balance / total_salary;
     }
 
     function hasEnoughFund() public view returns (bool) {
