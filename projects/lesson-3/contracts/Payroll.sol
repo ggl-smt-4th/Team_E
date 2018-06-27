@@ -25,7 +25,7 @@ contract Payroll is Ownable {
         uint lastPayDay;
     }
 
-    uint constant payDuration = 10 seconds;
+    uint constant payDuration = 30 days;
     uint totalSalary = 0;
     mapping(address => Employee) public employees;
     
