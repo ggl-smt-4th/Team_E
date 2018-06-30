@@ -1,0 +1,76 @@
+/*作业请提交在这个目录下*/
+pragma solidity ^0.4.14;
+
+contract Payroll{
+    uint constant payDuration = 10 seconds;
+    
+    address owner;
+    address employee;
+    uint salary = 1 ether;
+    uint lastPayDay = now;
+    
+    function Payroll() payable {
+        owner = msg.sender;
+    }
+    
+    function addFund() payable returns (uint) {
+        return this.balance;
+    }
+    
+    function calculateRunway() returns (uint) {
+        return this.balance / salary;
+    }
+    
+    function hasEnoughFund() returns (bool) {
+        return calculateRunway() > 0;
+    }
+    
+    function changeEmployeeAddress(address e) payable{
+        require(msg.sender == owner);
+        require(e != 0x0);
+        if(employee != 0x0)
+        {
+            uint money = salary*(lastPayDay-now)/payDuration;
+            assert(money<=this.balance);
+            employee.transfer(money);
+        }
+        employee = e;
+    }
+    
+    function changeEmployeeSalary(uint s) {
+        require(msg.sender == owner);
+        if(employee != 0x0)
+        {
+            uint money = salary*(lastPayDay-now)/payDuration;
+            assert(money<=this.balance);
+            employee.transfer(money);
+        }
+        salary = s * 1 ether;
+    }
+    
+    // function getEmployee() returns (address){
+    //     return employee;
+    // }
+    
+    // function getSalary() returns (uint){
+    //     return salary;
+    // }
+    
+    function getPaid() {
+        if (msg.sender != employee)
+        {
+            revert();
+        }
+        
+        uint nextPayDay = lastPayDay + payDuration;
+        
+        if (nextPayDay>now){
+            revert();
+        }
+        
+        lastPayDay = nextPayDay;
+        employee.transfer(salary);
+    }
+
+       
+}
