@@ -4,6 +4,11 @@ import './SafeMath.sol';
 import './Ownable.sol';
 
 contract Payroll is Ownable {
+    event AddEmployee(address sender, address employeeId, uint salary);
+    event RemoveEmployee(address sender, address employeeId);
+    event UpdateEmployee(address sender, address employeeId, uint salary);
+    event AddFund(address sender, uint value);
+    event GetPaid(address employeeId, uint salary);
 
     using SafeMath for uint;
 
@@ -149,5 +154,11 @@ contract Payroll is Ownable {
         salary = employees[id].salary;
         lastPayday = employees[id].lastPayday;
         balance = address(id).balance;
+    }
+
+    function checkInfo() view public returns (uint balance, uint runway, uint employeeCount) {
+        balance = address(this).balance;
+        runway = calculateRunway();
+        employeeCount = employeeAddressList.length;
     }
 }
