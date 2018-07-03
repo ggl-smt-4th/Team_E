@@ -17,42 +17,48 @@ contract('Payroll', function (accounts) {
         }).then(() => {
             return payroll.calculateRunway();
         }).then(runway => {
-            assert.equal(runway, 2, "runway should be 2);
+            assert.equal(runway, 2, "runway should be 2");
         }).catch(error => {
             assert.include(error.toString(), "Error: VM Exception", "Cannot call addEmployee() by guest");
         });;
     });
+    
     it('illegal salary test', function () {
         let payroll;
         return Payroll.new().then(function (instance) {
             payroll = instance;
-            payroll.addEmployee(employee, -1);
+        }).then(function(){
+            return payroll.addEmployee(employee, -1);
         }).then(() => {
             assert(false, "adding employee with illegal salary should fail!");
         }).catch(error => {
             assert.include(error.toString(), "Error: VM Exception", "Cannot call addEmployee() by guest");
         });
     });
+
     it("guest call addEmployee test", function () {
         let payroll;
         return Payroll.new().then(function (instance) {
             payroll = instance;
-            payroll.addEmployee(employee, 1, {from: guest});
+        }).then(function(){
+            return payroll.addEmployee(employee, 1, {from: guest});
         }).then(() => {
             assert(false, "adding employee with guest should fail!");
         }).catch(error => {
             assert.include(error.toString(), "Error: VM Exception", "Cannot call addEmployee() by guest");
         });
     });
+
     it("employee call addEmployee test", function () {
         let payroll;
         return Payroll.new().then(function (instance) {
             payroll = instance;
-            payroll.addEmployee(employee, 1, {from: employee});
+        }).then(function(){
+            return payroll.addEmployee(employee, 1, {from: employee});
         }).then(() => {
             assert(false, "adding employee with employee should fail!");
         }).catch(error => {
-            assert.include(error.toString(), "Error: VM Exception", "Cannot call addEmployee() by guest");
+            assert.include(error.toString(), "Error: VM Exception", "Cannot call addEmployee() by employee");
         });
     });
 });
