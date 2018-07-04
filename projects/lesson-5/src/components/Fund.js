@@ -18,14 +18,18 @@ class Fund extends Component {
     payroll.addFund({
       from: account,
       value: web3.toWei(this.state.fund)
-    });
+    })
+    .then(() => this.CommonRef.getEmployerInfo())
+  }
+  onRef = (ref) => {
+    this.CommonRef = ref
   }
 
   render() {
     const { account, payroll, web3 } = this.props;
     return (
       <div>
-        <Common account={account} payroll={payroll} web3={web3} />
+        <Common account={account} payroll={payroll} web3={web3} onRef={this.onRef} />
 
         <Form layout="inline" onSubmit={this.handleSubmit}>
           <FormItem>
