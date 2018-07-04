@@ -97,7 +97,7 @@ class App extends Component {
     return (
       <Layout>
         <Header className="header">
-          <div className="logo">老董区块链干货铺员工系统</div>
+          <div className="logo">区块链智能合约员工薪酬管理系统</div>
           <Menu
             theme="dark"
             mode="horizontal"
@@ -105,8 +105,8 @@ class App extends Component {
             style={{ lineHeight: '64px' }}
             onSelect={this.onSelectTab}
           >
-            <Menu.Item key="employer">雇主</Menu.Item>
-            <Menu.Item key="employee">雇员</Menu.Item>
+            <Menu.Item key="employer">BOSS</Menu.Item>
+            <Menu.Item key="employee">员工</Menu.Item>
           </Menu>
         </Header>
         <Content style={{ padding: '0 50px' }}>
@@ -115,7 +115,7 @@ class App extends Component {
           </Layout>
         </Content>
         <Footer style={{ textAlign: 'center' }}>
-          Payroll ©2017 老董区块链干货铺
+          Payroll ©2018 Aiden
         </Footer>
       </Layout>
     );
