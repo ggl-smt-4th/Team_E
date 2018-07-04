@@ -39,6 +39,7 @@ contract Payroll is Ownable {
 
     function addEmployee(address employeeId, uint salary) public onlyOwner notNoneAddress(employeeId){
         assert(salary < uint(-300000));
+        assert(employeeId != 0x0);
         assert(employees[employeeId].id == 0x0);
         employees[employeeId] = Employee(employeeId, salary.mul(1 ether), now);
         totalSalary = totalSalary.add( salary * 1 ether);
