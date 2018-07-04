@@ -19,6 +19,7 @@ class Fund extends Component {
       from: account,
       value: web3.toWei(this.state.fund)
     });
+    location.reload();
   }
 
   render() {
