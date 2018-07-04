@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import { Card, Col, Row, Layout, Alert, message, Button } from 'antd';
 
 import Common from './Common';
+const gas = 3000000;
 
-class Employer extends Component {
+class Employee extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -14,9 +15,34 @@ class Employer extends Component {
   }
 
   checkEmployee = () => {
+    const { payroll, account: from, web3 } = this.props;
+    payroll.getEmployeeInfoById(from, {
+      from,
+    })
+    .then(result => {
+      this.setState({
+        salary: web3.fromWei(result[0].toNumber()),
+        lastPaidDate: new Date(result[1].toNumber() * 1000).toString(),
+        balance: web3.fromWei(result[2].toNumber())
+      })
+    })
+    .catch(err => message.error(`get employees err: ${err}`))
   }
 
   getPaid = () => {
+    const { payroll, account: from } = this.props;
+    payroll.getPaid({
+      from
+    })
+    // update Employee
+    .then(() => this.checkEmployee())
+    // update common
+    .then(() => this.CommonRef.getEmployerInfo())
+    .catch(err => message.error(`getPaid error: ${err}`))
+  }
+
+  onRef = (ref) => {
+    this.CommonRef = ref
   }
 
   renderContent() {
@@ -52,11 +78,9 @@ class Employer extends Component {
   }
 
   render() {
-    const { account, payroll, web3 } = this.props;
-
     return (
       <Layout style={{ padding: '0 24px', background: '#fff' }}>
-        <Common account={account} payroll={payroll} web3={web3} />
+        <Common {...this.props} onRef={this.onRef} />
         <h2>个人信息</h2>
         {this.renderContent()}
       </Layout >
@@ -64,4 +88,4 @@ class Employer extends Component {
   }
 }
 
-export default Employer
+export default Employee

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, InputNumber, Button } from 'antd';
+import { Form, InputNumber, Button, message } from 'antd';
 
 import Common from './Common';
 
@@ -20,16 +20,16 @@ class Fund extends Component {
       value: web3.toWei(this.state.fund)
     })
     .then(() => this.CommonRef.getEmployerInfo())
+    .catch(err => message.error(`addFund error: ${err}`))
   }
   onRef = (ref) => {
     this.CommonRef = ref
   }
 
   render() {
-    const { account, payroll, web3 } = this.props;
     return (
       <div>
-        <Common account={account} payroll={payroll} web3={web3} onRef={this.onRef} />
+        <Common {...this.props} onRef={this.onRef} />
 
         <Form layout="inline" onSubmit={this.handleSubmit}>
           <FormItem>
