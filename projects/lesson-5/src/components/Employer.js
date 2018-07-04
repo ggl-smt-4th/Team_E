@@ -59,7 +59,7 @@ class Employer extends Component {
             onSelect={this.onSelectTab}
           >
             <Menu.Item key="fund">合约信息</Menu.Item>
-            <Menu.Item key="employees">雇员信息</Menu.Item>
+            <Menu.Item key="employees">员工信息</Menu.Item>
           </Menu>
         </Sider>
         <Content style={{ padding: '0 24px', minHeight: 280 }}>
