@@ -41,7 +41,7 @@ contract('Payroll', function (accounts) {
             return payroll.addEmployee(employee, -salary, {from: owner});
         }).then(assert.fail).catch(error => {
             assert.include(error.toString(), "Error: VM Exception", "Negative salary can not be accepted!");
-        });s
+        });
         });
     
     it("Test call addEmployee() with null employee address", function(){
@@ -52,5 +52,16 @@ contract('Payroll', function (accounts) {
         }).then(assert.fail).catch(error => {
             assert.include(error.toString(), "Error: VM Exception", "Input Employee could not be null.");
         });
+    });
+
+    it("Test total_salary change correctly.", function(){
+        var payroll;
+        var totalSalary;
+        return Payroll.new().then(instance => {
+            payroll = instance;
+            totalSalary = payroll.totalSalary;
+            return payroll.addEmployee(employee, salary, {from: owner});
+        })
+        .then(() => {payroll.totalSalary == totalSalary+salary;});
     });
 });
