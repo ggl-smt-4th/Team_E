@@ -4,20 +4,6 @@ import './SafeMath.sol';
 import './Ownable.sol';
 
 contract Payroll is Ownable {
-    event AddEmployee(address sender, address employeeId, uint salary);
-    event RemoveEmployee(address sender, address employeeId);
-    event UpdateEmployee(address sender, address employeeId, uint salary);
-    event AddFund(address sender, uint value);
-    event GetPaid(address employeeId, uint salary);
-
-    /**
-     * event will be introduced in lesson 6
-     */
-    event AddFund(address indexed from, uint value);
-    event GetPaid(address indexed employee, uint value);
-    event AddEmployee(address indexed from, address indexed employee, uint salary);
-    event UpdateEmployee(address indexed from, address indexed employee, uint salary);
-    event RemoveEmployee(address indexed from, address indexed removed);
 
     using SafeMath for uint;
 
@@ -74,7 +60,6 @@ contract Payroll is Ownable {
         employees[employeeId] = Employee(index, salary, now);
 
         totalSalary = totalSalary.add(salary);
-        AddEmployee(msg.sender, employeeId, salary);
     }
 
     function removeEmployee(address employeeId) public onlyOwner shouldExist(employeeId) {
@@ -95,7 +80,6 @@ contract Payroll is Ownable {
 
         // adjust length
         employeeAddressList.length -= 1;
-        RemoveEmployee(msg.sender, employeeId);
     }
 
     function changePaymentAddress(address oldAddress, address newAddress) public onlyOwner shouldExist(oldAddress) shouldNotExist(newAddress) {
@@ -114,12 +98,9 @@ contract Payroll is Ownable {
         employees[employeeId].salary = salary;
         employees[employeeId].lastPayday = now;
         totalSalary = totalSalary.add(salary).sub(oldSalary);
-
-        UpdateEmployee(msg.sender, employeeId, salary);
     }
 
     function addFund() payable public returns (uint) {
-        AddFund(msg.sender, msg.value);
         return address(this).balance;
     }
 
@@ -142,7 +123,6 @@ contract Payroll is Ownable {
 
         employees[employeeId].lastPayday = nextPayday;
         employeeId.transfer(employees[employeeId].salary);
-        GetPaid(msg.sender, employees[employeeId].salary);
     }
 
     function getEmployerInfo() view public returns (uint balance, uint runway, uint employeeCount) {
@@ -163,11 +143,5 @@ contract Payroll is Ownable {
         salary = employees[id].salary;
         lastPayday = employees[id].lastPayday;
         balance = address(id).balance;
-    }
-
-    function checkInfo() view public returns (uint balance, uint runway, uint employeeCount) {
-        balance = address(this).balance;
-        runway = calculateRunway();
-        employeeCount = employeeAddressList.length;
     }
 }
