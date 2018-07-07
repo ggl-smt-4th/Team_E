@@ -7,6 +7,7 @@ contract Payroll is Ownable {
 
     using SafeMath for uint;
 
+        
     /**
      * We are using mapping here, the key is already the address.
      */
@@ -35,6 +36,22 @@ contract Payroll is Ownable {
     uint public totalSalary = 0;
     address[] employeeAddressList;
 
+    event NewEmployee(
+        address employee
+    );
+    event UpdateEmployee(
+        address employee
+    );
+    event RemoveEmployee(
+        address employee
+    );
+    event NewFund(
+        uint balance
+    );
+    event GetPaid(
+        address employee
+    );
+
     /**
      * This contract is simple, We update employees by the key directly
      * instead of updating a copy so that we could save some gas.
@@ -60,6 +77,7 @@ contract Payroll is Ownable {
         employees[employeeId] = Employee(index, salary, now);
 
         totalSalary = totalSalary.add(salary);
+        NewEmployee(employeeId);
     }
 
     function removeEmployee(address employeeId) public onlyOwner shouldExist(employeeId) {
@@ -80,6 +98,7 @@ contract Payroll is Ownable {
 
         // adjust length
         employeeAddressList.length -= 1;
+        RemoveEmployee(employeeId);
     }
 
     function changePaymentAddress(address oldAddress, address newAddress) public onlyOwner shouldExist(oldAddress) shouldNotExist(newAddress) {
@@ -98,10 +117,13 @@ contract Payroll is Ownable {
         employees[employeeId].salary = salary;
         employees[employeeId].lastPayday = now;
         totalSalary = totalSalary.add(salary).sub(oldSalary);
+        UpdateEmployee(employeeId);
     }
 
     function addFund() payable public returns (uint) {
-        return address(this).balance;
+        uint Balance = address(this).balance;
+        NewFund(Balance);
+        return Balance;
     }
 
     function calculateRunway() public view returns (uint) {
@@ -123,6 +145,7 @@ contract Payroll is Ownable {
 
         employees[employeeId].lastPayday = nextPayday;
         employeeId.transfer(employees[employeeId].salary);
+        GetPaid(employeeId);
     }
 
     function getEmployerInfo() view public returns (uint balance, uint runway, uint employeeCount) {
