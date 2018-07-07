@@ -9,7 +9,7 @@ class Common extends Component {
   }
 
   componentDidMount() {
-    const { payroll, web3 } = this.props;
+    this.props.onRef && this.props.onRef(this)
 
     /**
      * 事件相关，暂不要求
