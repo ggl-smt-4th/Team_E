@@ -62,7 +62,31 @@ class EmployeeList extends Component {
             }
             this.loadEmployees(employeeCount);
         });
+
+        this.onEmployeeAdded = payroll.EmployeeAdded(updateEmployees);
+        this.onEmployeeUpdated = payroll.EmployeeUpdated(updateEmployees);
+        this.onEmployeeDeleted = payroll.EmployeeDeleted(updateEmployees);
     }
+
+    componentWillUnmount() {
+        this.onEmployeeAdded.stopWatching();
+        this.onEmployeeUpdated.stopWatching();
+        this.onEmployeeDeleted.stopWatching();
+      }
+
+    loadAllEmployees() {
+        const { payroll, account } = this.props;
+          payroll.getEmployerInfo.call({
+              from: account
+          }).then((result) => {
+              const employeeCount = result[2].toNumber();
+              if (employeeCount === 0) {
+                  this.setState({loading: false});
+                  return;
+              }
+              this.loadEmployees(employeeCount);
+          });
+      }  
 
     loadEmployees(employeeCount) {
         const {payroll, account, web3} = this.props;

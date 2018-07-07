@@ -29,7 +29,7 @@ function run() {
     local args=$(base_docker_args $env $container_name)
     args="$args -v $projects_dir_in_host:/opt/src"
     args="$args -p 3000:3000"
-    args="$args -p 8545:8545"
+    #args="$args -p 8545:8545"
     args="$args -w /opt/src"
     local cmd_args='tail -f /dev/null'
     local cmd="docker run -d $args $image_name $cmd_args"
