@@ -49,19 +49,16 @@ class EmployeeList extends Component {
         );
     }
 
+ 
     componentDidMount() {
-        const { payroll, account } = this.props;
-        payroll.getEmployerInfo.call({
-            from: account
-        }).then((result) => {
-            const employeeCount = result[2].toNumber();
-
-            if (employeeCount === 0) {
-                this.setState({loading: false});
-                return;
-            }
-            this.loadEmployees(employeeCount);
-        });
+        const { payroll } = this.props;
+        this.loadAllEmployees();
+  
+        const updateEmployees = (error, result) => {
+          if(!error) {
+            this.loadAllEmployees();
+          }
+        };
 
         this.onEmployeeAdded = payroll.EmployeeAdded(updateEmployees);
         this.onEmployeeUpdated = payroll.EmployeeUpdated(updateEmployees);
@@ -131,6 +128,7 @@ class EmployeeList extends Component {
         });
     }
 
+
     updateEmployee = (address, salary) => {
         const { payroll, account } = this.props;
         const { employees } = this.state;
@@ -151,7 +149,7 @@ class EmployeeList extends Component {
             message.error(error.message);
         });
     }
-
+    
     removeEmployee = (employeeId) => {
         const { payroll, account } = this.props;
         const { employees } = this.state;
