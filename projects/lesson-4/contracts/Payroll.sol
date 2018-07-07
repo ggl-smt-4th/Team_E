@@ -20,6 +20,18 @@ contract Payroll is Ownable {
 
     function Payroll() payable public {
     }
+
+    modifier employeeNotExist(address employeeId) {
+        var employee = employees[employeeId];
+        assert(employee.id == 0x0);
+        _;
+    }
+    
+    modifier employeeExist(address employeeId) {
+        var employee = employees[employeeId];
+        assert(employee.id != 0x0);
+        _;
+    }
     
     modifier deleteEmployee(address employeeId) {
         _;
@@ -34,17 +46,14 @@ contract Payroll is Ownable {
         
     }
 
-    function addEmployee(address employeeId, uint salary) public onlyOwner {
+    function addEmployee(address employeeId, uint salary) public onlyOwner employeeNotExist(employeeId){
         require(int(salary) >= 0);
-        var employee = employees[employeeId];
-        assert(employee.id == 0x0);
         totalSalary = totalSalary.add(salary.mul(1 ether));
         employees[employeeId] = Employee(employeeId, salary.mul(1 ether), now);
     }
 
-    function removeEmployee(address employeeId) public onlyOwner deleteEmployee(employeeId) {
+    function removeEmployee(address employeeId) public onlyOwner deleteEmployee(employeeId)  employeeExist(employeeId){
         var employee = employees[employeeId];
-        assert(employee.id != 0x0);
         _partialPaid(employee);
         totalSalary = totalSalary.sub(employee.salary);
     }
@@ -57,10 +66,9 @@ contract Payroll is Ownable {
         employees[newAddress] = Employee(newAddress, employee.salary, now);
     }
 
-    function updateEmployee(address employeeId, uint salary) public onlyOwner {
+    function updateEmployee(address employeeId, uint salary) public onlyOwner employeeExist(employeeId){
         require(int(salary) >= 0);
         var employee = employees[employeeId];
-        assert(employee.id != 0x0);
         assert(employee.salary != salary);
         _partialPaid(employee);
         totalSalary = totalSalary.sub(employee.salary);
@@ -80,10 +88,9 @@ contract Payroll is Ownable {
         return calculateRunway() > 0;
     }
 
-    function getPaid() public {
+    function getPaid() public employeeExist(msg.sender){
         // TODO: your code here
         var employee = employees[msg.sender];
-        assert(employee.id != 0x0);
         uint nextPayday = employee.lastPayday.add(payDuration);
         assert(nextPayday < now);
         employee.lastPayday = nextPayday;
