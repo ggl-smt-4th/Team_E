@@ -13,6 +13,7 @@ contract Payroll is Ownable {
     event EmployeeDeleted(address employee);
     event Paid(address employee, uint value);
 
+
     /**
      * We are using mapping here, the key is already the address.
      */
@@ -56,7 +57,6 @@ contract Payroll is Ownable {
         .mul(now.sub(employees[employeeId].lastPayday))
         .div(PAY_DURATION);
         employeeId.transfer(payment);
-        Paid(employeeId, payment);
     }
 
     function addEmployee(address employeeId, uint salary) public onlyOwner shouldNotExist(employeeId) {
@@ -88,8 +88,8 @@ contract Payroll is Ownable {
 
         // adjust length
         employeeAddressList.length -= 1;
-        EmployeeDeleted(employeeId);
 
+        EmployeeDeleted(employeeId);
     }
 
     function changePaymentAddress(address oldAddress, address newAddress) public onlyOwner shouldExist(oldAddress) shouldNotExist(newAddress) {
@@ -110,7 +110,6 @@ contract Payroll is Ownable {
         totalSalary = totalSalary.add(salary).sub(oldSalary);
 
         EmployeeUpdated(employeeId, salary);
-
     }
 
     function addFund() payable public returns (uint) {
@@ -137,8 +136,7 @@ contract Payroll is Ownable {
 
         employees[employeeId].lastPayday = nextPayday;
         employeeId.transfer(employees[employeeId].salary);
-        Paid(employeeId, employees[employeeId].salary);
-
+        Paid(employeeId, salary);
     }
 
     function getEmployerInfo() view public returns (uint balance, uint runway, uint employeeCount) {

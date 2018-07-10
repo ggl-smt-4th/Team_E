@@ -49,20 +49,41 @@ class EmployeeList extends Component {
         );
     }
 
+ 
     componentDidMount() {
-        const { payroll, account } = this.props;
-        payroll.getEmployerInfo.call({
-            from: account
-        }).then((result) => {
-            const employeeCount = result[2].toNumber();
+        const { payroll } = this.props;
+        this.loadAllEmployees();
+  
+        const updateEmployees = (error, result) => {
+          if(!error) {
+            this.loadAllEmployees();
+          }
+        };
 
-            if (employeeCount === 0) {
-                this.setState({loading: false});
-                return;
-            }
-            this.loadEmployees(employeeCount);
-        });
+        this.onEmployeeAdded = payroll.EmployeeAdded(updateEmployees);
+        this.onEmployeeUpdated = payroll.EmployeeUpdated(updateEmployees);
+        this.onEmployeeDeleted = payroll.EmployeeDeleted(updateEmployees);
     }
+
+    componentWillUnmount() {
+        this.onEmployeeAdded.stopWatching();
+        this.onEmployeeUpdated.stopWatching();
+        this.onEmployeeDeleted.stopWatching();
+      }
+
+    loadAllEmployees() {
+        const { payroll, account } = this.props;
+          payroll.getEmployerInfo.call({
+              from: account
+          }).then((result) => {
+              const employeeCount = result[2].toNumber();
+              if (employeeCount === 0) {
+                  this.setState({loading: false});
+                  return;
+              }
+              this.loadEmployees(employeeCount);
+          });
+      }  
 
     loadEmployees(employeeCount) {
         const {payroll, account, web3} = this.props;
@@ -107,6 +128,7 @@ class EmployeeList extends Component {
         });
     }
 
+
     updateEmployee = (address, salary) => {
         const { payroll, account } = this.props;
         const { employees } = this.state;
@@ -127,7 +149,7 @@ class EmployeeList extends Component {
             message.error(error.message);
         });
     }
-
+    
     removeEmployee = (employeeId) => {
         const { payroll, account } = this.props;
         const { employees } = this.state;
