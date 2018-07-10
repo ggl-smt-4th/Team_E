@@ -4,15 +4,7 @@ import './SafeMath.sol';
 import './Ownable.sol';
 
 contract Payroll is Ownable {
-    event AddEmployee(address sender, address employeeId, uint salary);
-    event RemoveEmployee(address sender, address employeeId);
-    event UpdateEmployee(address sender, address employeeId, uint salary);
-    event AddFund(address sender, uint value);
-    event GetPaid(address employeeId, uint salary);
 
-    /**
-     * event will be introduced in lesson 6
-     */
     event AddFund(address indexed from, uint value);
     event GetPaid(address indexed employee, uint value);
     event AddEmployee(address indexed from, address indexed employee, uint salary);
@@ -163,11 +155,5 @@ contract Payroll is Ownable {
         salary = employees[id].salary;
         lastPayday = employees[id].lastPayday;
         balance = address(id).balance;
-    }
-
-    function checkInfo() view public returns (uint balance, uint runway, uint employeeCount) {
-        balance = address(this).balance;
-        runway = calculateRunway();
-        employeeCount = employeeAddressList.length;
     }
 }

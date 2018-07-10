@@ -4,20 +4,11 @@ import './SafeMath.sol';
 import './Ownable.sol';
 
 contract Payroll is Ownable {
-    event AddEmployee(address sender, address employeeId, uint salary);
-    event RemoveEmployee(address sender, address employeeId);
-    event UpdateEmployee(address sender, address employeeId, uint salary);
-    event AddFund(address sender, uint value);
-    event GetPaid(address employeeId, uint salary);
-
-    /**
-     * event will be introduced in lesson 6
-     */
-    event AddFund(address indexed from, uint value);
-    event GetPaid(address indexed employee, uint value);
-    event AddEmployee(address indexed from, address indexed employee, uint salary);
-    event UpdateEmployee(address indexed from, address indexed employee, uint salary);
-    event RemoveEmployee(address indexed from, address indexed removed);
+    event AddEmployee(address indexed sender, address indexed employeeId, uint salary);
+    event RemoveEmployee(address indexed sender, address indexed employeeId);
+    event UpdateEmployee(address indexed sender, address indexed employeeId, uint salary);
+    event AddFund(address indexed sender, uint value);
+    event GetPaid(address indexed employeeId, uint salary);
 
     using SafeMath for uint;
 
